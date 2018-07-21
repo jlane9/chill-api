@@ -13,7 +13,7 @@ POST /api/createSession
 
 ```json
 {
-    username: <str>
-    token: <str>
+    "username": "<str>"
+    "token": "<str>"
 }
 ```
