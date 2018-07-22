@@ -21,7 +21,6 @@ class EpisodeIndex(indexes.SearchIndex, indexes.Indexable):
     trakt_id = indexes.IntegerField(model_attr="trakt_id")
     tvdb_id = indexes.IntegerField(model_attr="tvdb_id")
     imdb_id = indexes.CharField(model_attr="imdb_id")
-    tmdb_id = indexes.IntegerField(model_attr="tmdb_id")
     tvrage_id = indexes.IntegerField(model_attr="tvrage_id")
 
     def get_model(self):
@@ -118,7 +117,7 @@ class ShowIndex(indexes.SearchIndex, indexes.Indexable):
     slug = indexes.CharField(model_attr="slug")
     tvdb_id = indexes.IntegerField(model_attr="tvdb_id")
     imdb_id = indexes.CharField(model_attr="imdb_id")
-    tmdb_id = indexes.IntegerField(model_attr="tmdb_id")
+    tvdb_id = indexes.IntegerField(model_attr="tvdb_id")
     tvrage_id = indexes.IntegerField(model_attr="tvrage_id")
 
     def get_model(self):
