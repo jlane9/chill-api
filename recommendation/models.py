@@ -1,7 +1,17 @@
+"""recommendation/models
+
+.. codeauthor:: John Lane <john.lane93@gmail.com>
+.. codeauthor:: Daniel Scharf <dscharf@fanthreesixty.com>
+
+"""
+
 from django.db import models
 from django.utils.timezone import now
 from uuid import uuid4
 from jsonfield import JSONField
+
+__all__ = ['Movie', 'Show', 'Episode', 'HistorylistMovie', 'HistorylistShow', 'WatchlistMovie', 'WatchlistShow',
+           'TraktSession']
 
 
 class Movie(models.Model):
@@ -104,34 +114,6 @@ class Episode(models.Model):
         return "{title} (S:{season}E:{episode})".format(title=self.title, season=self.season, episode=self.episode)
 
 
-class WatchlistMovie(models.Model):
-    """A movie that the user wants to watch instance
-    """
-
-    id = models.UUIDField(primary_key=True, default=uuid4())
-    rank = models.IntegerField(blank=False, null=False)
-    type = models.CharField(default="movie", max_length=64, blank=False, null=False)
-    listed_at = models.DateTimeField(default=now, null=False)
-    movie = models.ForeignKey(Movie, blank=False, null=False, on_delete=models.CASCADE, verbose_name='Movie watched')
-
-    def __str__(self):
-        return "{movie} ({rank})".format(movie=self.movie.title, rank=self.rank)
-
-
-class WatchlistShow(models.Model):
-    """A show that the user wants to watch instance
-    """
-
-    id = models.UUIDField(primary_key=True, default=uuid4())
-    rank = models.IntegerField(blank=False, null=False)
-    type = models.CharField(default="show", max_length=64, blank=False, null=False)
-    listed_at = models.DateTimeField(default=now, null=False)
-    show = models.ForeignKey(Show, blank=False, null=False, on_delete=models.CASCADE, verbose_name='Show watched')
-
-    def __str__(self):
-        return "{show} ({rank})".format(show=self.show.title, rank=self.rank)
-
-
 class HistorylistMovie(models.Model):
     """A movie that the user has already watched instance
     """
@@ -162,3 +144,42 @@ class HistorylistShow(models.Model):
 
     def __str__(self):
         return "{show} ({watched})".format(show=self.show.title, watched=self.watched_at)
+
+
+class WatchlistMovie(models.Model):
+    """A movie that the user wants to watch instance
+    """
+
+    id = models.UUIDField(primary_key=True, default=uuid4())
+    rank = models.IntegerField(blank=False, null=False)
+    type = models.CharField(default="movie", max_length=64, blank=False, null=False)
+    listed_at = models.DateTimeField(default=now, null=False)
+    movie = models.ForeignKey(Movie, blank=False, null=False, on_delete=models.CASCADE, verbose_name='Movie watched')
+
+    def __str__(self):
+        return "{movie} ({rank})".format(movie=self.movie.title, rank=self.rank)
+
+
+class WatchlistShow(models.Model):
+    """A show that the user wants to watch instance
+    """
+
+    id = models.UUIDField(primary_key=True, default=uuid4())
+    rank = models.IntegerField(blank=False, null=False)
+    type = models.CharField(default="show", max_length=64, blank=False, null=False)
+    listed_at = models.DateTimeField(default=now, null=False)
+    show = models.ForeignKey(Show, blank=False, null=False, on_delete=models.CASCADE, verbose_name='Show watched')
+
+    def __str__(self):
+        return "{show} ({rank})".format(show=self.show.title, rank=self.rank)
+
+
+class TraktSession(models.Model):
+    """A trakt session instance
+    """
+
+    user_slug = models.CharField(max_length=1024, null=False, blank=False)
+    token = models.CharField(max_length=128, null=False, blank=False)
+
+    def __str__(self):
+        return "{user_slug} ({token})".format(user_slug=self.user_slug, token=self.token)

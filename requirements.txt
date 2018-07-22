@@ -2,8 +2,7 @@ Django>=1.10.10
 django-extensions>=2.1.0
 django-haystack>=2.8.1
 djangorestframework>=3.8.0
-elasticsearch>=2.0.0,<3.0.0
+elasticsearch==2.4.1
 elasticsearch2==2.5.0
 jsonfield>=2.0.0
-pyelasticsearch==1.4.1
 requests>=2.19.0

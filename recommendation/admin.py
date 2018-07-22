@@ -1,13 +1,19 @@
+"""recommendation/admin
+
+.. codeauthor:: John Lane <john.lane93@me.com>
+.. codeauthor:: Daniel Scharf <dscharf@fanthreesixty.com>
+
+"""
+
 from django.contrib import admin
-from recommendation.models import Movie, Show, Episode, WatchlistMovie, WatchlistShow, HistorylistMovie, HistorylistShow
+from recommendation.models import *
 
-# Register your models here.
-
-admin.site.register(Movie)
-admin.site.register(Show)
 admin.site.register(Episode)
-admin.site.register(WatchlistMovie)
-admin.site.register(WatchlistShow)
 admin.site.register(HistorylistMovie)
 admin.site.register(HistorylistShow)
+admin.site.register(Movie)
+admin.site.register(Show)
+admin.site.register(TraktSession)
+admin.site.register(WatchlistMovie)
+admin.site.register(WatchlistShow)
 
