@@ -42,7 +42,7 @@ class Show(models.Model):
     slug = models.CharField(null=False, blank=False, max_length=1024)
     imdb_id = models.CharField(null=False, blank=False, max_length=256)
     tvdb_id = models.IntegerField(null=False, blank=False, default=-1)
-    tvrage_id = models.IntegerField(null=True, blank=True)
+    tvrage_id = models.IntegerField(null=False, blank=False)
 
     def __str__(self):
         return "{title} ({year})".format(title=self.title, year=self.year)
