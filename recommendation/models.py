@@ -42,7 +42,7 @@ class Show(models.Model):
     slug = models.CharField(null=False, blank=False, max_length=1024)
     imdb_id = models.CharField(null=False, blank=False, max_length=256)
     tvdb_id = models.IntegerField(null=False, blank=False, default=-1)
-    tvrage_id = models.IntegerField(null=False, blank=False, default=-1)
+    tvrage_id = models.IntegerField(null=True, blank=True)
 
     def __str__(self):
         return "{title} ({year})".format(title=self.title, year=self.year)
@@ -55,9 +55,9 @@ class Episode(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid4)
     season = models.IntegerField(null=False, blank=False)
     number = models.IntegerField(null=False, blank=False)
-    title = models.CharField(max_length=1024)
+    title = models.CharField(null=False, blank=False, max_length=1024)
     trakt_id = models.IntegerField(null=False, blank=False, default=-1)
-    slug = models.CharField(null=False, blank=False, max_length=1024)
+    slug = models.CharField(null=False, blank=True, max_length=1024)
     imdb_id = models.CharField(null=False, blank=False, max_length=256)
     tvdb_id = models.IntegerField(null=False, blank=False, default=-1)
     tvrage_id = models.IntegerField(null=False, blank=False, default=-1)
@@ -91,7 +91,7 @@ class HistorylistShow(models.Model):
     watched_at = models.DateTimeField(default=now, null=False)
     action = models.CharField(default="watch", max_length=64, blank=False, null=False)
     type = models.CharField(default="show", max_length=64, blank=False, null=False)
-    episode = models.ForeignKey(Episode, blank=False, null=False, on_delete=models.CASCADE,
+    episode = models.ForeignKey(Episode, blank=True, null=True, on_delete=models.CASCADE,
                                 verbose_name='Episode watched')
     show = models.ForeignKey(Show, blank=False, null=False, on_delete=models.CASCADE, verbose_name='Show watched')
     user_slug = models.CharField(max_length=1024, null=False, blank=False)
@@ -216,6 +216,181 @@ class TraktSession(models.Model):
 
                 watch_list_item.save()
 
+    def get_watchlist_shows(self):
+
+        url = "https://api.trakt.tv/users/{user}/watchlist/shows".format(user=self.user_slug)
+
+        headers = {
+            'Content-type': "application/json",
+            'trakt-api-key': settings.API_KEY,
+            'trakt-api-version': "2",
+            'Authorization': "Bearer {token}".format(token=self.token)
+        }
+
+        response = request("GET", url, headers=headers)
+
+        if response.ok:
+            watch_list = response.json()
+
+            for item in watch_list:
+
+                show = Show.objects.filter(trakt_id=item["show"]["ids"]["trakt"]).first()
+
+                if show:
+                    pass
+
+                else:
+                    data = {
+                        "title": item["show"].get("title"),
+                        "year": item["show"].get("year"),
+                        "trakt_id": item["show"]["ids"].get("trakt", -1),
+                        "slug": item["show"]["ids"].get("slug", ""),
+                        "imdb_id": item["show"]["ids"].get("imdb", ""),
+                        "tvdb_id": item["show"]["ids"].get("tvdb", -1),
+                        "tvrage_id": item["show"]["ids"].get("tvrage", -1),
+                    }
+                    show = Show.objects.create(**data)
+                    show.save()
+
+                watch_list_item = WatchlistShow.objects.filter(user_slug=self.user_slug,
+                                                               show__trakt_id=item["show"]["ids"]["trakt"]).first()
+
+                if watch_list_item:
+                    watch_list_item.rank = item.get("rank", -1)
+                    watch_list_item.type = item.get("type", "show")
+
+                else:
+
+                    data = {
+                        "rank": item.get("rank", -1),
+                        "listed_at": item.get("listed_at", now()),
+                        "type": item.get("type", "show"),
+                        "show": show,
+                        "user_slug": self.user_slug
+                    }
+
+                    watch_list_item = WatchlistShow.objects.create(**data)
+
+                watch_list_item.save()
+
+    def get_historylist_movies(self):
+
+        url = "https://api.trakt.tv/users/{user}/history/movies".format(user=self.user_slug)
+
+        headers = {
+            'Content-type': "application/json",
+            'trakt-api-key': settings.API_KEY,
+            'trakt-api-version': "2",
+            'Authorization': "Bearer {token}".format(token=self.token)
+        }
+
+        response = request("GET", url, headers=headers)
+
+        if response.ok:
+            history_list = response.json()
+
+            for item in history_list:
+
+                movie = Movie.objects.filter(trakt_id=item["movie"]["ids"]["trakt"]).first()
+
+                if movie:
+                    pass
+
+                else:
+                    data = {
+                        "title": item["movie"].get("title"),
+                        "year": item["movie"].get("year"),
+                        "trakt_id": item["movie"]["ids"].get("trakt", -1),
+                        "slug": item["movie"]["ids"].get("slug", ""),
+                        "imdb_id": item["movie"]["ids"].get("imdb", ""),
+                        "tmdb_id": item["movie"]["ids"].get("tmdb", -1)
+                    }
+                    movie = Movie.objects.create(**data)
+                    movie.save()
+
+                history_list_item = HistorylistMovie.objects.filter(user_slug=self.user_slug,
+                                                                    movie__trakt_id=item["movie"]["ids"]["trakt"]).first()
+
+                if history_list_item:
+                    history_list_item.rank = item.get("rank", -1)
+                    history_list_item.type = item.get("type", "movie")
+
+                else:
+
+                    data = {
+                        "watch_id": item.get("watch_id", -1),
+                        "watched_at": item.get("watched_at", now()),
+                        "action": item.get("action", "watch"),
+                        "type": item.get("type", "movie"),
+                        "movie": movie,
+                        "user_slug": self.user_slug
+                    }
+
+                    history_list_item = HistorylistMovie.objects.create(**data)
+
+                    history_list_item.save()
+
+    def get_historylist_shows(self):
+
+        url = "https://api.trakt.tv/users/{user}/history/shows".format(user=self.user_slug)
+
+        headers = {
+            'Content-type': "application/json",
+            'trakt-api-key': settings.API_KEY,
+            'trakt-api-version': "2",
+            'Authorization': "Bearer {token}".format(token=self.token)
+        }
+
+        response = request("GET", url, headers=headers)
+
+        if response.ok:
+            history_list = response.json()
+
+            for item in history_list:
+
+                show = Show.objects.filter(trakt_id=item["show"]["ids"]["trakt"]).first()
+
+                if show:
+                    pass
+
+                else:
+                    data = {
+                        "title": item["show"].get("title"),
+                        "year": item["show"].get("year"),
+                        "trakt_id": item["show"]["ids"].get("trakt", -1),
+                        "slug": item["show"]["ids"].get("slug", ""),
+                        "imdb_id": item["show"]["ids"].get("imdb", ""),
+                        "tvdb_id": item["show"]["ids"].get("tvdb", -1),
+                        "tvrage_id": item["show"]["ids"].get("tvrage", -1),
+                    }
+                    show = Show.objects.create(**data)
+                    show.save()
+
+                history_list_item = HistorylistShow.objects.filter(user_slug=self.user_slug,
+                                                                   show__trakt_id=item["show"]["ids"]["trakt"]).first()
+
+                if history_list_item:
+                    history_list_item.rank = item.get("rank", -1)
+                    history_list_item.type = item.get("type", "show")
+
+                else:
+
+                    data = {
+                        "watch_id": item.get("watch_id", -1),
+                        "watched_at": item.get("watched_at", now()),
+                        "action": item.get("action", "watch"),
+                        "type": item.get("type", "show"),
+                        "show": show,
+                        "user_slug": self.user_slug
+                    }
+
+                    history_list_item = HistorylistShow.objects.create(**data)
+
+                history_list_item.save()
+
     def update_info(self):
 
         self.get_watchlist_movies()
+        self.get_watchlist_shows()
+        self.get_historylist_movies()
+        self.get_historylist_shows()
