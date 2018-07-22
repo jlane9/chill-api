@@ -5,10 +5,11 @@
 
 """
 
+from uuid import uuid4
 from django.db import models
 from django.conf import settings
 from django.utils.timezone import now
-from uuid import uuid4
+import requests
 from jsonfield import JSONField
 from requests import request
 
