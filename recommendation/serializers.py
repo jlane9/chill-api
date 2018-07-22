@@ -20,7 +20,7 @@ class EpisodeSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Episode
-        fields = ('id', 'season', 'number', 'title', 'ids', 'trakt_id', 'tvdb_id', 'imdb_id', 'tmdb_id', 'tvrage')
+        fields = ('id', 'season', 'number', 'title', 'trakt_id', 'tvdb_id', 'imdb_id', 'tmdb_id', 'tvrage')
 
 
 class MovieSerializer(serializers.HyperlinkedModelSerializer):
@@ -29,7 +29,7 @@ class MovieSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Movie
-        fields = ('id', 'title', 'year', 'ids', 'trakt_id', 'slug', 'imdb_id', 'tmdb_id')
+        fields = ('id', 'title', 'year', 'trakt_id', 'slug', 'imdb_id', 'tmdb_id')
 
 
 class ShowSerializer(serializers.HyperlinkedModelSerializer):
@@ -38,7 +38,7 @@ class ShowSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Show
-        fields = ('id', 'title', 'year', 'ids', 'trakt_id', 'slug', 'imdb_id', 'tvdb_id', 'tmdb_id', 'tvrage')
+        fields = ('id', 'title', 'year', 'trakt_id', 'slug', 'imdb_id', 'tvdb_id', 'tmdb_id', 'tvrage')
 
 
 class HistorylistMovieSerializer(serializers.ModelSerializer):
