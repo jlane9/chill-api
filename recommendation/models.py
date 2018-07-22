@@ -13,6 +13,22 @@ class Movie(models.Model):
     year = models.IntegerField(null=False, blank=False)
     ids = JSONField(blank=True, null=True)
 
+    @property
+    def trakt_id(self):
+        return self.ids["trakt"] if "trakt" in self.ids else -1
+
+    @property
+    def slug(self):
+        return self.ids["slug"] if "slug" in self.ids else ''
+
+    @property
+    def imdb_id(self):
+        return self.ids["imdb"] if "imdb" in self.ids else ''
+
+    @property
+    def tmdb_id(self):
+        return self.ids["tmdb"] if "tmdb" in self.ids else -1
+
     def __str__(self):
         return "{title} ({year})".format(title=self.title, year=self.year)
 

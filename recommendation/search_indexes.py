@@ -9,6 +9,12 @@ class WatchlistMovieIndex(indexes.SearchIndex, indexes.Indexable):
     rank = indexes.IntegerField(model_attr='rank')
     type = indexes.CharField(model_attr='type')
     listed_at = indexes.DateTimeField(model_attr='listed_at')
+    movie_title = indexes.CharField(model_attr="movie__title")
+    movie_year = indexes.CharField(model_attr="movie__year")
+    movie_ids_trakt = indexes.IntegerField(model_attr="movie__trakt_id")
+    movie_ids_slug = indexes.CharField(model_attr="movie__slug")
+    movie_ids_imdb = indexes.CharField(model_attr="movie__imdb_id")
+    movie_ids_tmdb = indexes.IntegerField(model_attr="movie__tmdb_id")
 
     def get_model(self):
         return WatchlistMovie
