@@ -39,11 +39,20 @@ class HistorylistMovieViewSet(viewsets.ModelViewSet):
         :return:
         """
 
-        if request:
-            pass
+        data = request.data
 
-        queryset = SearchQuerySet().models(HistorylistMovie).all()
-        serializer = HistorylistMovieSerializer(queryset, many=True)
+        queryset = SearchQuerySet().models(HistorylistMovie)
+
+        if "friends" in data:
+            queryset = queryset.filter(user_slug__in=data["friends"])
+
+        if "year" in data:
+            queryset = queryset.filter(movie_year__gte=data["year"][0], movie_year__lte=data["year"][1])
+
+        if "recent" in data and data["recent"]:
+            queryset = queryset.order_by('-movie_year')
+
+        serializer = MovieRecommendationSerializer(queryset, many=True)
 
         return Response(serializer.data)
 
@@ -62,11 +71,20 @@ class HistorylistShowViewSet(viewsets.ModelViewSet):
         :return:
         """
 
-        if request:
-            pass
+        data = request.data
 
-        queryset = SearchQuerySet().models(HistorylistShow).all()
-        serializer = HistorylistShowSerializer(queryset, many=True)
+        queryset = SearchQuerySet().models(HistorylistShow)
+
+        if "friends" in data:
+            queryset = queryset.filter(user_slug__in=data["friends"])
+
+        if "year" in data:
+            queryset = queryset.filter(movie_year__gte=data["year"][0], movie_year__lte=data["year"][1])
+
+        if "recent" in data and data["recent"]:
+            queryset = queryset.order_by('-movie_year')
+
+        serializer = ShowRecommendationSerializer(queryset, many=True)
 
         return Response(serializer.data)
 
@@ -150,10 +168,19 @@ class WatchlistShowViewSet(viewsets.ModelViewSet):
         :return:
         """
 
-        if request:
-            pass
+        data = request.data
 
-        queryset = SearchQuerySet().models(WatchlistShow).all()
-        serializer = WatchlistShowSerializer(queryset, many=True)
+        queryset = SearchQuerySet().models(WatchlistShow)
+
+        if "friends" in data:
+            queryset = queryset.filter(user_slug__in=data["friends"])
+
+        if "year" in data:
+            queryset = queryset.filter(movie_year__gte=data["year"][0], movie_year__lte=data["year"][1])
+
+        if "recent" in data and data["recent"]:
+            queryset = queryset.order_by('-movie_year')
+
+        serializer = ShowRecommendationSerializer(queryset, many=True)
 
         return Response(serializer.data)

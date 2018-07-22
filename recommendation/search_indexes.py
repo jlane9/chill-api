@@ -41,6 +41,7 @@ class HistorylistMovieIndex(indexes.SearchIndex, indexes.Indexable):
     user_slug = indexes.CharField(model_attr="user_slug", faceted=True)
     action = indexes.CharField(model_attr='action')
     type = indexes.CharField(model_attr='type')
+    movie_id = indexes.CharField(model_attr="movie__id")
     movie_title = indexes.CharField(model_attr="movie__title")
     movie_year = indexes.CharField(model_attr="movie__year", faceted=True)
     movie_trakt_id = indexes.IntegerField(model_attr="movie__trakt_id")
@@ -67,12 +68,14 @@ class HistorylistShowIndex(indexes.SearchIndex, indexes.Indexable):
     user_slug = indexes.CharField(model_attr="user_slug", faceted=True)
     action = indexes.CharField(model_attr='action')
     type = indexes.CharField(model_attr='type')
+    show_id = indexes.CharField(model_attr="show__id")
     show_title = indexes.CharField(model_attr="show__title")
     show_year = indexes.CharField(model_attr="show__year", faceted=True)
     show_trakt_id = indexes.IntegerField(model_attr="show__trakt_id")
     show_slug = indexes.CharField(model_attr="show__slug")
     show_imdb_id = indexes.CharField(model_attr="show__imdb_id")
-    show_tmdb_id = indexes.IntegerField(model_attr="show__tmdb_id")
+    show_tvdb_id = indexes.IntegerField(model_attr="show__tvdb_id")
+    show_tvrage_id = indexes.IntegerField(model_attr="show__tvrage_id")
 
     def get_model(self):
         return HistorylistShow
@@ -162,6 +165,7 @@ class WatchlistShowIndex(indexes.SearchIndex, indexes.Indexable):
     type = indexes.CharField(model_attr='type')
     listed_at = indexes.DateTimeField(model_attr='listed_at')
     user_slug = indexes.CharField(model_attr="user_slug", faceted=True)
+    show_id = indexes.CharField(model_attr="show__id")
     show_title = indexes.CharField(model_attr="show__title")
     show_year = indexes.CharField(model_attr="show__year", faceted=True)
     show_trakt_id = indexes.IntegerField(model_attr="show__trakt_id")

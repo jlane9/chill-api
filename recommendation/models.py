@@ -11,8 +11,8 @@ from django.conf import settings
 from django.utils.timezone import now
 from requests import request
 
-__all__ = ['Movie', 'Show', 'Episode', 'HistorylistMovie', 'HistorylistShow', 'MovieRecommendation', 'WatchlistMovie',
-           'WatchlistShow', 'TraktSession']
+__all__ = ['Movie', 'Show', 'Episode', 'HistorylistMovie', 'HistorylistShow', 'MovieRecommendation',
+           'ShowRecommendation', 'WatchlistMovie', 'WatchlistShow', 'TraktSession']
 
 
 class Movie(models.Model):
@@ -112,7 +112,7 @@ class ShowRecommendation(object):
 
     def __init__(self, **kwargs):
         for field in ('show_id', 'show_title', 'show_year', 'show_trakt_id', 'show_slug', 'show_imdb_id',
-                      'show_tmdb_id'):
+                      'show_tvdb_id', 'show_tvrage_id'):
             setattr(self, field, kwargs.get(field, None))
 
 
