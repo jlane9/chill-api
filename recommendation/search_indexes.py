@@ -130,15 +130,17 @@ class WatchlistMovieIndex(indexes.SearchIndex, indexes.Indexable):
 
     text = indexes.CharField(document=True, use_template=True)
     id = indexes.CharField(model_attr='id')
-    rank = indexes.IntegerField(model_attr='rank')
+    rank = indexes.IntegerField(model_attr='rank', faceted=True)
     type = indexes.CharField(model_attr='type')
     listed_at = indexes.DateTimeField(model_attr='listed_at')
+    user_slug = indexes.CharField(model_attr="user_slug", faceted=True)
+    movie_id = indexes.CharField(model_attr="movie__id")
     movie_title = indexes.CharField(model_attr="movie__title")
-    movie_year = indexes.CharField(model_attr="movie__year")
-    movie_ids_trakt = indexes.IntegerField(model_attr="movie__trakt_id")
-    movie_ids_slug = indexes.CharField(model_attr="movie__slug")
-    movie_ids_imdb = indexes.CharField(model_attr="movie__imdb_id")
-    movie_ids_tmdb = indexes.IntegerField(model_attr="movie__tmdb_id")
+    movie_year = indexes.CharField(model_attr="movie__year", faceted=True)
+    movie_trakt_id = indexes.IntegerField(model_attr="movie__trakt_id")
+    movie_slug = indexes.CharField(model_attr="movie__slug")
+    movie_imdb_id = indexes.CharField(model_attr="movie__imdb_id")
+    movie_tmdb_id = indexes.IntegerField(model_attr="movie__tmdb_id")
 
     def get_model(self):
         return WatchlistMovie

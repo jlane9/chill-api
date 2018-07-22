@@ -106,6 +106,7 @@ class UserViewSet(viewsets.ModelViewSet):
 class WatchlistMovieViewSet(viewsets.ModelViewSet):
     """Watchlist movie view set instance
     """
+
     queryset = WatchlistMovie.objects.all()
     serializer_class = WatchlistMovieSerializer
 
@@ -117,11 +118,20 @@ class WatchlistMovieViewSet(viewsets.ModelViewSet):
         :return:
         """
 
-        if request:
-            pass
+        data = request.data
 
-        queryset = SearchQuerySet().models(WatchlistMovie).all()
-        serializer = WatchlistMovieSerializer(queryset, many=True)
+        queryset = SearchQuerySet().models(WatchlistMovie)
+
+        if "friends" in data:
+            queryset = queryset.filter(user_slug__in=data["friends"])
+
+        if "year" in data:
+            queryset = queryset.filter(movie_year__gte=data["year"][0], movie_year__lte=data["year"][1])
+
+        if "recent" in data and data["recent"]:
+            queryset = queryset.order_by('-movie_year')
+
+        serializer = MovieRecommendationSerializer(queryset, many=True)
 
         return Response(serializer.data)
 

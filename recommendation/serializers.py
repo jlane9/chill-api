@@ -10,8 +10,8 @@ from rest_framework import serializers
 from recommendation.models import *
 
 __all__ = ['EpisodeSerializer', 'MovieSerializer', 'ShowSerializer', 'HistorylistMovieSerializer',
-           'HistorylistShowSerializer', 'TraktSessionSerializer', 'UserSerializer', 'WatchlistMovieSerializer',
-           'WatchlistShowSerializer']
+           'HistorylistShowSerializer', 'MovieRecommendationSerializer', 'TraktSessionSerializer', 'UserSerializer',
+           'WatchlistMovieSerializer', 'WatchlistShowSerializer']
 
 
 class EpisodeSerializer(serializers.HyperlinkedModelSerializer):
@@ -62,6 +62,27 @@ class HistorylistShowSerializer(serializers.ModelSerializer):
     class Meta:
         model = HistorylistShow
         fields = ('id', 'watch_id', 'watched_at', 'action', 'type', 'episode', 'show')
+
+
+class MovieRecommendationSerializer(serializers.Serializer):
+    """
+    """
+
+    movie_id = serializers.UUIDField(read_only=True)
+    movie_title = serializers.CharField(read_only=True)
+    movie_year = serializers.CharField(read_only=True)
+    movie_trakt_id = serializers.IntegerField(read_only=True)
+    movie_slug = serializers.CharField(read_only=True)
+    movie_imdb_id = serializers.CharField(read_only=True)
+    movie_tmdb_id = serializers.IntegerField(read_only=True)
+
+    def create(self, validated_data):
+        return MovieRecommendation(**validated_data)
+
+    def update(self, instance, validated_data):
+        for field, value in validated_data.items():
+            setattr(instance, field, value)
+        return instance
 
 
 class TraktSessionSerializer(serializers.ModelSerializer):

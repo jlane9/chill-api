@@ -9,12 +9,11 @@ from uuid import uuid4
 from django.db import models
 from django.conf import settings
 from django.utils.timezone import now
-import requests
 from jsonfield import JSONField
 from requests import request
 
-__all__ = ['Movie', 'Show', 'Episode', 'HistorylistMovie', 'HistorylistShow', 'WatchlistMovie', 'WatchlistShow',
-           'TraktSession']
+__all__ = ['Movie', 'Show', 'Episode', 'HistorylistMovie', 'HistorylistShow', 'MovieRecommendation', 'WatchlistMovie',
+           'WatchlistShow', 'TraktSession']
 
 
 class Movie(models.Model):
@@ -134,6 +133,14 @@ class HistorylistShow(models.Model):
 
     def __str__(self):
         return "{show} ({watched})".format(show=self.show.title, watched=self.watched_at)
+
+
+class MovieRecommendation(object):
+
+    def __init__(self, **kwargs):
+        for field in ('movie_id', 'movie_title', 'movie_year', 'movie_trakt_id', 'movie_slug', 'movie_imdb_id',
+                      'movie_tmdb_id'):
+            setattr(self, field, kwargs.get(field, None))
 
 
 class WatchlistMovie(models.Model):
