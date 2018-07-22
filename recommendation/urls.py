@@ -6,12 +6,14 @@
 
 from django.conf.urls import include, url
 from rest_framework import routers
-from recommendation.views import UserViewSet
+from recommendation.views import MovieViewSet, UserViewSet, WatchlistMovieViewSet
 
 
 # Routers provide an easy way of automatically determining the URL conf.
 router = routers.DefaultRouter()
+router.register(r'movies', MovieViewSet)
 router.register(r'users', UserViewSet)
+router.register(r'watchlist-movie', WatchlistMovieViewSet)
 
 # Wire up our API using automatic URL routing.
 # Additionally, we include login URLs for the browse-able API.
