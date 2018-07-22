@@ -9,7 +9,6 @@ from uuid import uuid4
 from django.db import models
 from django.conf import settings
 from django.utils.timezone import now
-from jsonfield import JSONField
 from requests import request
 
 __all__ = ['Movie', 'Show', 'Episode', 'HistorylistMovie', 'HistorylistShow', 'MovieRecommendation', 'WatchlistMovie',
@@ -39,31 +38,11 @@ class Show(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid4)
     title = models.CharField(max_length=1024)
     year = models.IntegerField(null=False, blank=False)
-    ids = JSONField(blank=True, null=True)
-
-    @property
-    def trakt_id(self):
-        return self.ids["trakt"] if "trakt" in self.ids else -1
-
-    @property
-    def slug(self):
-        return self.ids["slug"] if "slug" in self.ids else ''
-
-    @property
-    def imdb_id(self):
-        return self.ids["imdb"] if "imdb" in self.ids else ''
-
-    @property
-    def tvdb_id(self):
-        return self.ids["tvdb"] if "tvdb" in self.ids else -1
-
-    @property
-    def tmdb_id(self):
-        return self.ids["tmdb"] if "tmdb" in self.ids else -1
-
-    @property
-    def tvrage(self):
-        return self.ids["tvrage"] if "tvrage" in self.ids else -1
+    trakt_id = models.IntegerField(null=False, blank=False, default=-1)
+    slug = models.CharField(null=False, blank=False, max_length=1024)
+    imdb_id = models.CharField(null=False, blank=False, max_length=256)
+    tvdb_id = models.IntegerField(null=False, blank=False, default=-1)
+    tvrage_id = models.IntegerField(null=False, blank=False, default=-1)
 
     def __str__(self):
         return "{title} ({year})".format(title=self.title, year=self.year)
@@ -77,30 +56,14 @@ class Episode(models.Model):
     season = models.IntegerField(null=False, blank=False)
     number = models.IntegerField(null=False, blank=False)
     title = models.CharField(max_length=1024)
-    ids = JSONField(blank=True, null=True)
-
-    @property
-    def trakt_id(self):
-        return self.ids["trakt"] if "trakt" in self.ids else -1
-
-    @property
-    def tvdb_id(self):
-        return self.ids["tvdb"] if "tvdb" in self.ids else -1
-
-    @property
-    def imdb_id(self):
-        return self.ids["imdb"] if "imdb" in self.ids else ''
-
-    @property
-    def tmdb_id(self):
-        return self.ids["tmdb"] if "tmdb" in self.ids else -1
-
-    @property
-    def tvrage(self):
-        return self.ids["tmdb"] if "tmdb" in self.ids else -1
+    trakt_id = models.IntegerField(null=False, blank=False, default=-1)
+    slug = models.CharField(null=False, blank=False, max_length=1024)
+    imdb_id = models.CharField(null=False, blank=False, max_length=256)
+    tvdb_id = models.IntegerField(null=False, blank=False, default=-1)
+    tvrage_id = models.IntegerField(null=False, blank=False, default=-1)
 
     def __str__(self):
-        return "{title} (S:{season}E:{episode})".format(title=self.title, season=self.season, episode=self.episode)
+        return "{title} (S:{season}E:{episode})".format(title=self.title, season=self.season, episode=self.number)
 
 
 class HistorylistMovie(models.Model):
@@ -113,6 +76,7 @@ class HistorylistMovie(models.Model):
     action = models.CharField(default="watch", max_length=64, blank=False, null=False)
     type = models.CharField(default="movie", max_length=64, blank=False, null=False)
     movie = models.ForeignKey(Movie, blank=False, null=False, on_delete=models.CASCADE, verbose_name='Movie watched')
+    user_slug = models.CharField(max_length=1024, null=False, blank=False)
 
     def __str__(self):
         return "{movie} ({watched})".format(movie=self.movie.title, watched=self.watched_at)
@@ -130,6 +94,7 @@ class HistorylistShow(models.Model):
     episode = models.ForeignKey(Episode, blank=False, null=False, on_delete=models.CASCADE,
                                 verbose_name='Episode watched')
     show = models.ForeignKey(Show, blank=False, null=False, on_delete=models.CASCADE, verbose_name='Show watched')
+    user_slug = models.CharField(max_length=1024, null=False, blank=False)
 
     def __str__(self):
         return "{show} ({watched})".format(show=self.show.title, watched=self.watched_at)
@@ -140,6 +105,14 @@ class MovieRecommendation(object):
     def __init__(self, **kwargs):
         for field in ('movie_id', 'movie_title', 'movie_year', 'movie_trakt_id', 'movie_slug', 'movie_imdb_id',
                       'movie_tmdb_id'):
+            setattr(self, field, kwargs.get(field, None))
+
+
+class ShowRecommendation(object):
+
+    def __init__(self, **kwargs):
+        for field in ('show_id', 'show_title', 'show_year', 'show_trakt_id', 'show_slug', 'show_imdb_id',
+                      'show_tmdb_id'):
             setattr(self, field, kwargs.get(field, None))
 
 
@@ -167,6 +140,7 @@ class WatchlistShow(models.Model):
     type = models.CharField(default="show", max_length=64, blank=False, null=False)
     listed_at = models.DateTimeField(default=now, null=False)
     show = models.ForeignKey(Show, blank=False, null=False, on_delete=models.CASCADE, verbose_name='Show watched')
+    user_slug = models.CharField(max_length=1024, null=False, blank=False)
 
     def __str__(self):
         return "{show} ({rank})".format(show=self.show.title, rank=self.rank)
@@ -241,3 +215,7 @@ class TraktSession(models.Model):
                     watch_list_item = WatchlistMovie.objects.create(**data)
 
                 watch_list_item.save()
+
+    def update_info(self):
+
+        self.get_watchlist_movies()
