@@ -1,4 +1,1 @@
-{{ object.id }}
-{{ object.rank }}
-{{ object.type }}
-{{ object.listed_at }}
+{{ object }}
