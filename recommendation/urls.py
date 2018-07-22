@@ -4,7 +4,7 @@
 
 """
 
-from django.urls import include, path
+from django.conf.urls import include, url
 from rest_framework import routers
 from recommendation.views import UserViewSet
 
@@ -16,5 +16,5 @@ router.register(r'users', UserViewSet)
 # Wire up our API using automatic URL routing.
 # Additionally, we include login URLs for the browse-able API.
 urlpatterns = [
-    path('', include(router.urls)),
+    url(r'', include(router.urls)),
 ]
